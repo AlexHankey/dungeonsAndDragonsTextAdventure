@@ -19,14 +19,12 @@ Confirm that the command prints the installed version of Go.
 
 ## Project Setup & Run 
 
-Now navigate to where you build your projects, for me this is ~/Users/username/go/src/github.com/username/ and make a folder.
-
+On your machine, Create a new folder and CD into it
 ```bash
-cd ~/Users/username/go/src/github.com/username/
 mkdir goDnd
 cd goDnd
 ```
-Clone this project, then in the terminal run:
+Clone the repo, then in the terminal run:
 ```bash
 go run main.go
 ```
