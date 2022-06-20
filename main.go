@@ -33,6 +33,10 @@ type Enemy struct {
 	ArmourClass uint
 }
 
+func hello() string {
+	return "Hello World!"
+}
+
 func actOneStory() {
 
 }
@@ -74,7 +78,8 @@ func welcomeIntro() {
 	fmt.Scan(&characterClass)
 	fmt.Printf("And what is your backstory %v?\n", characterName)
 	fmt.Scan(&characterBackstory)
-	fmt.Printf("Ah! so you're a %v. Well someone like you should do just fine on this adventure.\n", characterClass)
+	trimmed := strings.TrimSpace(characterBackstory)
+	fmt.Printf("Ah! so you're a %v. Well someone like you should do just fine on this adventure.\n", trimmed)
 	fmt.Println("Well then, Let's begin!...")
 	fmt.Println("-----------------------------------------------------")
 }
@@ -104,6 +109,7 @@ func firstFight(e Enemy) {
 }
 
 func main() {
+	hello()
 	welcomeIntro()
 	firstFight(getEnemy()) // Not sure if this argument is correct?
 
