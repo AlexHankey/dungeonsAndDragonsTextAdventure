@@ -1,0 +1,14 @@
+{
+    "enemies": [
+        {
+            "name": "Slime",
+            "damage": 5,
+            "race": "Slime",
+            "weapon": "SlimeGoo",
+            "armourClass": 5
+        }
+    ]
+  }
+
+
+

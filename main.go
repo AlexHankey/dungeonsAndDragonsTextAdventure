@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"os"
 	"strings"
@@ -11,8 +13,8 @@ import (
 )
 
 /*
-Player character
-Name, Age, Height, Class, Backstory,
+Global scope variables, mainly used for the character builder
+TO-DO: These variables could be used inside the character builder function
 */
 var (
 	characterName      string
@@ -21,32 +23,34 @@ var (
 	characterHeight    uint
 	characterClass     string
 	characterBackstory string
+	enemies            []Enemy
 )
+
+/*
+Enemies struct which creates an empty array
+using the Enemy struct
+*/
+type Enemies struct {
+	Enemies []Enemy `json:"enemies"`
+}
 
 /*
 Enemy character
 Health, Race, Weapon, ArmourClass
 */
 type Enemy struct {
-	Health      uint
-	Race        string
-	Weapon      string
-	ArmourClass uint
+	Name        string `json:"name"`
+	Health      uint   `json:"health"`
+	Damage      uint   `json:"damage"`
+	Race        string `json:"race"`
+	Weapon      string `json:"weapon"`
+	ArmourClass uint   `json:"armourClass"`
 }
 
-func getEnemy() Enemy {
-	return Enemy{
-		Health:      20,
-		Race:        "Goblin",
-		Weapon:      "Club",
-		ArmourClass: 10,
-	}
-}
-
-func (e Enemy) getEnemyDamage() int {
-	return 20
-}
-
+/*
+Generates a random number between 1-20
+and outputs the result as an integer
+*/
 func diceRoll() {
 	min := 0
 	max := 20
@@ -56,7 +60,73 @@ func diceRoll() {
 	fmt.Println(rand.Intn(max-min) + min)
 }
 
-func combat() {
+/*
+getEnemy opens and reads a json file
+and prints out the first result: Line 80
+which is this case is the only data in the file
+*/
+func getEnemy() {
+	// Open jsonFile
+	jsonFile, err := os.Open("enemyData.json")
+	// os.Open returns an error then handles  it
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// read opened jsonFile as a byte array.
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var enemies Enemies
+
+	//  unmarshal our byteArray which contains our
+	// jsonFile's content into 'users' which is defined above
+	json.Unmarshal(byteValue, &enemies)
+	fmt.Printf("Enemy info: %+v\n", enemies.Enemies[0])
+}
+
+/*
+Uses enemy struct to return enemy damage
+which the player will face against
+*/
+func getEnemyDamage(d Enemy) {
+	fmt.Printf("This is the enemies damage ->  %v\n", d.Damage)
+}
+
+/*
+The first story fight the user will encounter
+Includes conditionals to use against user input
+*/
+func firstFight() Enemy {
+	// To-Do, add story about engaging with a Slime
+	fmt.Println("Oh No, A Slime!")
+	fmt.Println("Do you wish to engage? (y/n):")
+	var userInput string
+	fmt.Scan(&userInput)
+	var convertedAnswer = strings.ToLower(userInput)
+
+	if convertedAnswer == "y" {
+		combatText := figure.NewFigure("Engaged in combat!", "", true)
+		fmt.Println(combatText)
+	} else if convertedAnswer == "n" {
+		fmt.Println("You fled from the fight & your adventure is over!")
+	} else {
+		fmt.Println("Please enter a valid input adventurer")
+	}
+	playerCombat()
+
+	// e.getEnemyDamage()
+
+	e := Enemy{Health: 20, Race: "Goblin", Weapon: "Club", ArmourClass: 10}
+	return e
+
+	// todo, once i enter my backstory the terminal just exits out for some reason :/
+}
+
+/*
+Combat. Gives the user the option to fight or retreat
+if they fight, it will get a random enemy.
+*/
+func playerCombat() {
 	fmt.Println("What do you want to do?")
 	var playerCombatChoice string
 	fmt.Scan(&playerCombatChoice)
@@ -74,10 +144,11 @@ func combat() {
 	} else {
 		return
 	}
-
-	getEnemy()
 }
 
+/*
+Allows the player to create their own chracter
+*/
 func characterBuilder() {
 	intro1 := figure.NewFigure("Welcome adventurer to...", "", true)
 	intro2 := figure.NewFigure("Dungeons & Dragons", "", true)
@@ -88,13 +159,14 @@ func characterBuilder() {
 	fmt.Printf("Is %v a male or a female?\n", characterName)
 	fmt.Scan(&characterGender)
 	fmt.Printf("Welcome %v, Happy to see you have joined us on this dangerous adventure. Why don't we get introductions out of the way and you tell me a little about yourself?\n", characterName)
-	fmt.Printf("How old is %v?:\n", characterName)
-	fmt.Scan(&characterAge)
 
 	/* TO-DO:
 	Character Races could be older than 100(Such as elfs)
 	Include character Race structs to easily do checks against in-game universe races
 	*/
+	fmt.Printf("How old is %v?: \n", characterName)
+	fmt.Scan(&characterAge)
+
 	if characterAge < 18 {
 		fmt.Printf("Sorry but %v is too young to be fighting monsters, come back and play when you're a bit older\n", characterName)
 		os.Exit(404)
@@ -126,39 +198,16 @@ func characterBuilder() {
 	terminal / programme having a heart attack and dieing on me
 	*/
 
+	// characterBackstory
+
 	trimmed := strings.TrimSpace(characterClass)
 	fmt.Printf("Ah! so you're a %v. Well someone like you should do just fine on this adventure.\n", trimmed)
 	fmt.Println("Well then, Let's begin!...")
 	fmt.Println("-----------------------------------------------------")
 }
 
-func firstFight(e Enemy) {
-	// To-Do, add story about engaging with a Slime
-	fmt.Println("Oh No, A Slime!")
-	fmt.Println("Do you wish to engage? (y/n):")
-	var userInput string
-	fmt.Scan(&userInput)
-	var convertedAnswer = strings.ToLower(userInput)
-
-	if convertedAnswer == "y" {
-		combatText := figure.NewFigure("Engaged in combat!", "", true)
-		fmt.Println(combatText)
-	} else if convertedAnswer == "n" {
-		fmt.Println("You fled from the fight & your adventure is over!")
-	} else {
-		fmt.Println("Please enter a valid input adventurer")
-	}
-	combat()
-
-	// e.getEnemyDamage()
-
-	// goblin1 := Enemy{Health: 20, Race: "Goblin", Weapon: "Club", ArmourClass: 10}
-
-	// todo, once i enter my backstory the terminal just exits out for some reason :/
-}
-
 func main() {
 	characterBuilder()
 	fmt.Println("You enter a dark and slimy cave when all of a sudden you hear a noise, you turn around and notice a large object in front of you...")
-	firstFight(getEnemy())
+	firstFight()
 }
